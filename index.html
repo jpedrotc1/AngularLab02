@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html ng-app="CinemaDoJao">
+<head>
+	<meta charset="utf-8">
+	<title>Cinema do Jão</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="lib/angular/angular.js"></script>
+	<script src="lib/bootstrap/bootstrap.js"></script>
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.css">
+	<script src="lib/jquery/jquery-3.2.1.js"></script>
+	<script>
+
+
+		angular.module("CinemaDoJao",[]);
+		angular.module("CinemaDoJao").controller("CinemaDoJaoCtrl", function($scope, $http) {
+
+		$scope.series = [];
+        $scope.profile = [];
+        $scope.watchList = [];
+
+	  	$scope.buscaSeries = function(serie){
+
+
+        $http.get('https://omdbapi.com\t?s='+ serie + '&type=series&apikey=93330d3c')
+        	.then(function (response) {
+           $scope.series = response.data.Search;
+           })
+        }
+
+        $scope.addSerieWatchlist = function (serie) {
+           $scope.watchList.push(angular.copy(serie));
+        }
+        $scope.addSerieProfile = function (serie) {
+        	let arrayID = $scope.profile.map(function (serie){
+        		return serie.imdbID;
+       		 });
+       	  var indexOfSearch = arrayID.indexOf(serie.imdbID);
+          if(indexOfSearch == -1){
+          	 $scope.profile.push(angular.copy(serie));	
+          }else{
+          	 var message = "Filme Já Adicionado!";
+          	 alert(message);
+          }	
+        }
+ 
+      
+
+        $scope.removeSerieProfile = function (serie) {
+           var index = $scope.profile.indexOf(serie);
+         
+             $scope.profile.splice(index, 1);
+          
+        }
+        $scope.removeSerieWatchList = function (serie) {
+           var index = $scope.watchList.indexOf(serie);
+           
+             $scope.watchList.splice(index, 1);
+          
+        }
+
+        $scope.takeInfo = function (serie){
+        	console.log(serie);
+        	$scope.movieInfo = angular.copy(serie);
+        }
+
+	 });
+	</script>
+</head>
+<body ng-controller ="CinemaDoJaoCtrl">
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand">CinemaDoJão</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active" ><a href="#home" data-toggle="tab">Home</a></li>
+      <li><a href="#profile"  data-toggle="tab">Profile</a></li>
+      <li><a href="#watchList"  data-toggle="tab">WacthList</a></li>
+    </ul>
+    <form class="navbar-form navbar-left">
+      <div class="form-group">
+        <input type="text" ng-model="serie" class="form-control" placeholder="Looking for something?">
+      </div>
+      	<button class="btn btn-default" ng-click="buscaSeries(serie)">Search</button>
+     </form>
+ </nav>
+
+
+
+    <div class="tab-content">
+
+    <div id="home" class="tab-pane in active">
+    <div class="row">
+     	 <div class="gallery" ng-repeat="serie in series" style="text-align: center;">
+     	 	<div class="col-md-4">
+            <img class="serie-poster" src={{serie.Poster}} width="200" height="290" >
+            <div class="btn btn-group">
+            	<button class="btn btn-primary"  ng-click="addSerieProfile(serie)">Add to Profile</button>
+         		<button class="btn btn-primary"   ng-click="addSerieWatchlist(serie)">Add to WatchList</button>
+         	</div>
+
+         </div>
+        </div> 
+    </div>
+    </div>
+
+    <div id= "watchList" class="tab-pane">
+    	<div class="row">
+    	<div class="gallery" ng-repeat="serie in watchList" style="text-align: center;">
+    	<div class="col-md-4">
+            <img class="serie-poster" src={{serie.Poster}} width="200" height="290">
+            <div class="btn btn-group">
+            	<button class="btn btn-primary"  ng-click="addSerieProfile(serie)">Add  to  Profile</button>
+        		<button class="btn btn-primary"  ng-click="removeSerieWatchList(serie)">Remove from watchList</button>	
+            </div>
+        	  
+         </div>
+         </div>
+    </div>
+    </div>
+
+    <div id="profile" class="tab-pane">
+    	<div class="row">
+    	<div class="gallery" ng-repeat="serie in profile" style="text-align: center;">
+    	<div class="col-md-4">
+    		<input type="button" ng-style="{'background' : 'url({{serie.Poster}}) no-repeat center top'}" style="margin-top: -15px;
+		background-attachment: relative;
+		background-position: center center;
+		min-height: 300px;
+		width: 100%;
+    -webkit-background-size: 100%;
+    -moz-background-size: 100%;
+    -o-background-size: 100%;
+    background-size: 100%;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;"  data-toggle="modal" data-target="#myModal" ng-click="takeInfo(serie)"/>
+            <button class="btn btn-primary"  ng-click="removeSerieProfile(serie)">Remove from Profile</button>
+         </div>
+         </div>
+         </div>
+    </div>
+
+	</div>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Modal Header</h4>
+      </div>
+      <div class="modal-body">
+        <p>{{movieInfo.Title}}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+ 
+
+
+</body>
+</html>
